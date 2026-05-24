@@ -54,4 +54,17 @@ public class GlobalExceptionHandler {
                 Collections.singletonList("Please try again later")
         );
     }
+
+    @ExceptionHandler(InvalidLoginException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleInvalidLoginException(InvalidLoginException ex) {
+
+        log.warn("Invalid login attempt: {}", ex.getMessage());
+
+        return new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Login failed",
+                Collections.singletonList(ex.getMessage())
+        );
+    }
 }

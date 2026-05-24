@@ -21,3 +21,7 @@ spring:
 server:
   port: 8080
 kind: Application
+
+jwt:
+  secret: "this-is-my-super-secure-jwt-secret-key-2026-for-investor-app"
+  expiration-ms: 3600000
