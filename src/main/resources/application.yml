@@ -25,3 +25,24 @@ kind: Application
 jwt:
   secret: "this-is-my-super-secure-jwt-secret-key-2026-for-investor-app"
   expiration-ms: 3600000
+
+top-stocks:  RELIANCE.NS,TCS.NS,INFY.NS,HDFCBANK.NS,ICICIBANK.NS,SBIN.NS,ITC.NS
+
+resilience4j:
+  retry:
+    instances:
+      yahooFinanceRetry:
+        max-attempts: 3
+        wait-duration: 1s
+        retry-exceptions:
+          - com.portfolio.exception.YahooFinanceClientException
+        ignore-exceptions:
+          - java.lang.IllegalArgumentException
+
+  circuitbreaker:
+    instances:
+      yahooFinanceCircuitBreaker:
+        failure-rate-threshold: 50
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 30s

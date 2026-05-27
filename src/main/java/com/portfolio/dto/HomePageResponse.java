@@ -1,22 +1,18 @@
 package com.portfolio.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResponse {
-
-    private Long userId;
-    private String name;
-    private String email;
-    private String token;
-    private String tokenType;
-    private String message;
-
+public class HomePageResponse {
+    private  UserDto user;
+    private List<MenuResponse> menuResponse;
+    private List<StockTickerDto> stockTickerDto;
 }

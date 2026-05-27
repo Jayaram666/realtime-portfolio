@@ -1,7 +1,7 @@
 package com.portfolio.controller;
 import com.portfolio.dto.UserRegistrationRequest;
 import com.portfolio.dto.UserRegistrationResponse;
-import com.portfolio.service.UserRegistrationService;
+import com.portfolio.service.impl.UserRegistrationServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/users")
 public class UserRegistrationController {
 
-    private final UserRegistrationService userRegistrationService;
+    private final UserRegistrationServiceImpl userRegistrationService;
 
-    public UserRegistrationController(UserRegistrationService userRegistrationService) {
+    public UserRegistrationController(UserRegistrationServiceImpl userRegistrationService) {
         this.userRegistrationService = userRegistrationService;
     }
 

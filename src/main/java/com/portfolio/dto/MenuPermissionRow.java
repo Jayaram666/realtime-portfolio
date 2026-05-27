@@ -1,6 +1,5 @@
 package com.portfolio.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,13 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResponse {
+public class MenuPermissionRow {
 
-    private Long userId;
-    private String name;
-    private String email;
-    private String token;
-    private String tokenType;
-    private String message;
-
+    private String menuName;
+    private String menuLabel;
+    private String permissionCode;
 }
