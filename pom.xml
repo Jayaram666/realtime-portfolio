@@ -30,7 +30,7 @@
 		<module>api-gateway</module>
 		<module>service-discovery</module>
 		<module>common-lib</module>
-		<module>kafka-config</module>
+		<module>common-config</module>
 		<module>market-data-service</module>
 	</modules>
 

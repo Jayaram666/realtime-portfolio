@@ -1,12 +1,12 @@
 server:
-  port: ${SERVER_PORT:8082}
+  port: ${SERVER_PORT:8081}
 
 spring:
   application:
-    name: ${SPRING_APPLICATION_NAME:stack-service}
+    name: ${SPRING_APPLICATION_NAME:authentication-service}
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/stock_db}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/auth_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
@@ -18,6 +18,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
 
 eureka:
   client:

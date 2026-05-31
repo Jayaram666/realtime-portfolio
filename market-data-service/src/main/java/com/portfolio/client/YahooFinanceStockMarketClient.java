@@ -11,14 +11,11 @@ import yahoofinance.Stock;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
-public class YahooFinanceStockMarketClient implements StockClient {
+public class YahooFinanceStockMarketClient implements RemoteStockClient {
 
     private static final String CURRENCY = "INR";
 
@@ -28,6 +25,19 @@ public class YahooFinanceStockMarketClient implements StockClient {
     public List<StockTickerDto> getTopStocks(TickersDto tickersDto) {
         try {
             return getStockDataFromYahoo(tickersDto.getTickers());
+        } catch (IOException e) {
+            throw new YahooFinanceClientException("Failed to fetch stock data from Yahoo Finance", e);
+        }
+    }
+
+    @Override
+    public Optional<BigDecimal> getStockPrice(String tickerSymbol) {
+        try {
+            return getStockDataFromYahoo(new String[]{tickerSymbol})
+                    .stream()
+                    .filter(ticker -> ticker.getSymbol().equalsIgnoreCase(tickerSymbol))
+                    .findFirst()
+                    .map(StockTickerDto::getCurrentPrice);
         } catch (IOException e) {
             throw new YahooFinanceClientException("Failed to fetch stock data from Yahoo Finance", e);
         }

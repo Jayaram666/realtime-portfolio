@@ -1,9 +1,23 @@
 server:
-  port: ${SERVER_PORT:8084}
+  port: ${SERVER_PORT:8083}
 
 spring:
   application:
-    name: ${SPRING_APPLICATION_NAME:market-data-service}
+    name: ${SPRING_APPLICATION_NAME:portfolio-service}
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/portfolio_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: ${SPRING_JPA_SHOW_SQL:true}
+    properties:
+      hibernate:
+        format_sql: true
 
   data:
     redis:
@@ -13,7 +27,7 @@ spring:
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
-      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:market-data-service}
+      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:portfolio-service}
       auto-offset-reset: latest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -25,12 +39,6 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
-portfolio:
-  stock:
-    market-suffix: ${PORTFOLIO_STOCK_MARKET_SUFFIX:.NS}
-  stock-price-fetch:
-    fixed-rate-ms: ${PORTFOLIO_STOCK_PRICE_FETCH_FIXED_RATE_MS:30000}
 
 eureka:
   client:

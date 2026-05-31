@@ -1,13 +1,17 @@
 package com.portfolio.scheduler;
 
-import com.portfolio.client.StockPriceProvider;
-import com.portfolio.config.RabbitMqConfig;
-import com.portfolio.dto.StockAlertMessage;
+
 import com.portfolio.entity.PortfolioAlertThreshold;
 import com.portfolio.entity.UserPortfolio;
-import com.portfolio.repository.PortfolioAlertThresholdRepository;
-import com.portfolio.repository.StockAlertHistoryRepository;
-import com.portfolio.repository.UserPortfolioRepository;
+import com.portfolio.rabbitmq.RabbitMQConfig;
+import com.portfolio.rabbitmq.RabbitMQExchanges;
+import com.portfolio.rabbitmq.RabbitMQRoutingKeys;
+import com.portfolio.repo.PortfolioAlertThresholdRepository;
+import com.portfolio.repo.StockAlertHistoryRepository;
+import com.portfolio.repo.UserPortfolioRepository;
+import com.portfolio.service.StackMarketService;
+import org.portfolio.dto.StockAlertMessage;
+import org.portfolio.dto.StockTickerDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,20 +31,20 @@ public class StockAlertGenerator {
     private final PortfolioAlertThresholdRepository thresholdRepository;
     private final UserPortfolioRepository userPortfolioRepository;
     private final StockAlertHistoryRepository alertHistoryRepository;
-    private final StockPriceProvider stockPriceProvider;
+    private final StackMarketService stackMarketService;
     private final RabbitTemplate rabbitTemplate;
 
     public StockAlertGenerator(
             PortfolioAlertThresholdRepository thresholdRepository,
             UserPortfolioRepository userPortfolioRepository,
             StockAlertHistoryRepository alertHistoryRepository,
-            StockPriceProvider stockPriceProvider,
+            StackMarketService stackMarketService,
             RabbitTemplate rabbitTemplate
     ) {
         this.thresholdRepository = thresholdRepository;
         this.userPortfolioRepository = userPortfolioRepository;
         this.alertHistoryRepository = alertHistoryRepository;
-        this.stockPriceProvider = stockPriceProvider;
+        this.stackMarketService = stackMarketService;
         this.rabbitTemplate = rabbitTemplate;
     }
 
@@ -83,7 +87,9 @@ public class StockAlertGenerator {
                 ));
 
         BigDecimal currentPrice =
-                stockPriceProvider.getCurrentPrice(threshold.getTickerSymbol());
+                stackMarketService.getStockPrice(threshold.getTickerSymbol()).
+                        map(StockTickerDto::getCurrentPrice)
+                        .orElse(BigDecimal.ZERO);
 
         if (currentPrice.compareTo(BigDecimal.ZERO) <= 0) {
             log.warn("Current price not available for ticker={}",
@@ -154,8 +160,8 @@ public class StockAlertGenerator {
         );
 
         rabbitTemplate.convertAndSend(
-                RabbitMqConfig.ALERT_EXCHANGE,
-                RabbitMqConfig.ALERT_ROUTING_KEY,
+                RabbitMQExchanges.ALERT_EXCHANGE,
+                RabbitMQRoutingKeys.EMAIL_ALERT_ROUTING_KEY,
                 message
         );
 

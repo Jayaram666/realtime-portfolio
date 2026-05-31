@@ -10,6 +10,6 @@ import java.util.List;
 @FeignClient(name = "stock-service")
 public interface StackClient {
 
-    @GetMapping("/api/stocks")
-    List<StockResponse> getStockTickers();
+    @GetMapping("/api/stocks/{tickerSymbol}")
+    List<StockResponse> getStockByTickerSymbol(String tickerSymbol);
 }

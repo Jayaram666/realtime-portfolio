@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:api-gateway}
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      routes:
+        - id: authentication-service
+          uri: lb://authentication-service
+          predicates:
+            - Path=/api/auth/**,/api/users/**
+
+        - id: stack-service
+          uri: lb://stack-service
+          predicates:
+            - Path=/api/stocks/**
+
+        - id: portfolio-service
+          uri: lb://portfolio-service
+          predicates:
+            - Path=/api/portfolio/**
+
+        - id: market-data-service
+          uri: lb://market-data-service
+          predicates:
+            - Path=/api/market-data/**
+
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/notifications/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway

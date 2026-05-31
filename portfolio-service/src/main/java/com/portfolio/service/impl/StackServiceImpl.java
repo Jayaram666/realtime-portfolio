@@ -15,6 +15,6 @@ public class StackServiceImpl implements StackService {
     private StackClient stackClient;
     @Override
     public Optional<StockResponse> getStockByTickerSymbol(String stockCode) {
-        return Optional.of(stackClient.getStockTickers();
+        return Optional.empty();
     }
 }
