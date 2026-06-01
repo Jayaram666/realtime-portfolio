@@ -36,3 +36,7 @@ management:
     web:
       exposure:
         include: health,info
+
+jwt:
+  secret: ${JWT_SECRET:my-super-secure-secret-key-with-32-chars-minimum}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}

@@ -13,7 +13,7 @@ spring:
         - id: authentication-service
           uri: lb://authentication-service
           predicates:
-            - Path=/api/auth/**,/api/users/**
+            - Path=/api/v1/auth/**,/api/v1/users/**
 
         - id: stack-service
           uri: lb://stack-service
@@ -28,13 +28,14 @@ spring:
         - id: market-data-service
           uri: lb://market-data-service
           predicates:
-            - Path=/api/market-data/**
+            - Path=/api/v1/stocks/**
 
         - id: notification-service
           uri: lb://notification-service
           predicates:
             - Path=/api/notifications/**
-
+jwt:
+  secret: ${JWT_SECRET:my-super-secure-secret-key-with-32-chars-minimum}
 eureka:
   client:
     service-url:

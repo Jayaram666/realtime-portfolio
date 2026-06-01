@@ -1,12 +1,16 @@
 version: "3.8"
 
 services:
-
   redis:
-    image: redis:7
+    image: redis:7-alpine
     container_name: realtime-redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       - realtime-network
 
@@ -15,6 +19,7 @@ services:
     container_name: realtime-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
     networks:
@@ -30,15 +35,18 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: realtime-zookeeper:2181
-
-      # 29092 is used by containers inside docker network.
-      # 9092 is used by your local machine if needed.
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://realtime-kafka:29092,EXTERNAL://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092
-
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server realtime-kafka:29092 --list >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
     networks:
       - realtime-network
 
@@ -48,20 +56,24 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       - realtime-network
 
   service-discovery:
     build:
-      context: ./service-discovery
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: service-discovery/Dockerfile
     container_name: service-discovery
     ports:
       - "8761:8761"
     environment:
       SERVER_PORT: 8761
       SPRING_APPLICATION_NAME: service-discovery
-
       EUREKA_CLIENT_REGISTER_WITH_EUREKA: "false"
       EUREKA_CLIENT_FETCH_REGISTRY: "false"
     networks:
@@ -69,137 +81,138 @@ services:
 
   authentication-service:
     build:
-      context: ./authentication-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: authentication-service/Dockerfile
     container_name: authentication-service
     depends_on:
-      - service-discovery
-      - redis
+      redis:
+        condition: service_healthy
+      service-discovery:
+        condition: service_started
     ports:
       - "8081:8081"
     environment:
       SERVER_PORT: 8081
       SPRING_APPLICATION_NAME: authentication-service
-
-      # Local PostgreSQL from container
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/auth_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/investor_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: jayaram@9959
-
       SPRING_DATA_REDIS_HOST: realtime-redis
       SPRING_DATA_REDIS_PORT: 6379
-
+      JWT_SECRET: my-super-secure-secret-key-with-32-chars-minimum
+      JWT_EXPIRATION_MS: 86400000
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
     networks:
       - realtime-network
 
   stack-service:
     build:
-      context: ./stack-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: stack-service/Dockerfile
     container_name: stack-service
     depends_on:
-      - service-discovery
+      service-discovery:
+        condition: service_started
     ports:
       - "8082:8082"
     environment:
       SERVER_PORT: 8082
       SPRING_APPLICATION_NAME: stack-service
-
-      # Local PostgreSQL from container
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/stock_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/investor_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: jayaram@9959
-
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
     networks:
       - realtime-network
 
   portfolio-service:
     build:
-      context: ./portfolio-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: portfolio-service/Dockerfile
     container_name: portfolio-service
     depends_on:
-      - service-discovery
-      - redis
-      - kafka
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      service-discovery:
+        condition: service_started
     ports:
       - "8083:8083"
     environment:
       SERVER_PORT: 8083
       SPRING_APPLICATION_NAME: portfolio-service
-
-      # Local PostgreSQL from container
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/portfolio_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/investor_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: jayaram@9959
-
       SPRING_DATA_REDIS_HOST: realtime-redis
       SPRING_DATA_REDIS_PORT: 6379
-
       SPRING_KAFKA_BOOTSTRAP_SERVERS: realtime-kafka:29092
-
+      SPRING_RABBITMQ_HOST: realtime-rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
     networks:
       - realtime-network
 
   market-data-service:
     build:
-      context: ./market-data-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: market-data-service/Dockerfile
     container_name: market-data-service
     depends_on:
-      - service-discovery
-      - redis
-      - kafka
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      service-discovery:
+        condition: service_started
     ports:
       - "8084:8084"
     environment:
       SERVER_PORT: 8084
       SPRING_APPLICATION_NAME: market-data-service
-
       SPRING_DATA_REDIS_HOST: realtime-redis
       SPRING_DATA_REDIS_PORT: 6379
-
       SPRING_KAFKA_BOOTSTRAP_SERVERS: realtime-kafka:29092
-
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
     networks:
       - realtime-network
 
   notification-service:
     build:
-      context: ./notification-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: notification-service/Dockerfile
     container_name: notification-service
     depends_on:
-      - service-discovery
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      service-discovery:
+        condition: service_started
     ports:
       - "8085:8085"
     environment:
       SERVER_PORT: 8085
       SPRING_APPLICATION_NAME: notification-service
-
-      # Local PostgreSQL from container
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/notification_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: jayaram@9959
-
       SPRING_RABBITMQ_HOST: realtime-rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: ""
+      SPRING_MAIL_PASSWORD: ""
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
     networks:
       - realtime-network
 
   api-gateway:
     build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: api-gateway/Dockerfile
     container_name: api-gateway
     depends_on:
       - service-discovery
@@ -213,7 +226,7 @@ services:
     environment:
       SERVER_PORT: 8080
       SPRING_APPLICATION_NAME: api-gateway
-
+      JWT_SECRET: my-super-secure-secret-key-with-32-chars-minimum
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
     networks:
       - realtime-network
