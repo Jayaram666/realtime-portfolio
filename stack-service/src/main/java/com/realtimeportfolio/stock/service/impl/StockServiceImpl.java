@@ -39,8 +39,7 @@ public class StockServiceImpl implements StockService {
 
         boolean alreadyExists =
                 stockRepository.existsByTickerSymbolIgnoreCaseAndExchangeIgnoreCase(
-                        tickerSymbol,
-                        exchange
+                        tickerSymbol
                 );
 
         if (alreadyExists) {
@@ -77,24 +76,6 @@ public class StockServiceImpl implements StockService {
                 .toList();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<StockResponse> searchStocks(String keyword) {
-
-        if (keyword == null || keyword.isBlank()) {
-            throw new BusinessException("Search keyword is required");
-        }
-
-        String normalizedKeyword = keyword.trim();
-
-        log.info("Searching stocks. keyword={}", normalizedKeyword);
-
-        return stockRepository
-                .searchActiveStocks(normalizedKeyword)
-                .stream()
-                .map(this::toResponse)
-                .toList();
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -200,7 +181,9 @@ public class StockServiceImpl implements StockService {
         return new StockResponse(
                 stock.getId(),
                 stock.getCompanyName(),
-                stock.getTickerSymbol()
+                stock.getTickerSymbol(),
+                stock.isActive()
+
         );
     }
 

@@ -14,5 +14,5 @@ public class StockResponse {
     private Long id;
     private String companyName;
     private String tickerSymbol;
-
+    private boolean isActive;
 }

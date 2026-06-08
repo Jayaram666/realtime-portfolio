@@ -28,11 +28,7 @@ public class StackMarketServiceImpl implements StackMarketService {
     @Override
     public List<StockTickerDto> getStockTickers() {
         log.debug("Calling market-data-service for default tickers. configuredTickers={}", defaultTickers);
-        String[] tickers = Arrays.stream(defaultTickers.split(","))
-                .map(String::trim)
-                .filter(ticker -> !ticker.isBlank())
-                .toArray(String[]::new);
-        List<StockTickerDto> response = stackMarketClient.getStockTickers(new TickersDto(tickers));
+        List<StockTickerDto> response = stackMarketClient.getStockTickers();
         log.debug("market-data-service ticker call completed. resultCount={}", response.size());
         return response;
     }

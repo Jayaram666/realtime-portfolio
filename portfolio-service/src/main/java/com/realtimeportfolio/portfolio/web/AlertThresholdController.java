@@ -2,6 +2,8 @@ package com.realtimeportfolio.portfolio.web;
 
 
 
+import com.realtimeportfolio.portfolio.scheduler.StockAlertGenerator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.realtimeportfolio.portfolio.service.AlertThresholdService;
 import jakarta.validation.Valid;
@@ -15,13 +17,12 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/api/portfolio/alerts/thresholds")
+@RequiredArgsConstructor
 public class AlertThresholdController {
 
     private final AlertThresholdService alertThresholdService;
+    private final StockAlertGenerator stockAlertGenerator;
 
-    public AlertThresholdController(AlertThresholdService alertThresholdService) {
-        this.alertThresholdService = alertThresholdService;
-    }
 
     @PostMapping
     public AlertThresholdResponse createOrUpdateThreshold(
@@ -48,4 +49,12 @@ public class AlertThresholdController {
         log.info("Get alert thresholds API completed. userId={}, count={}", authenticatedUserId, response.size());
         return response;
     }
+
+    @GetMapping("/monitor")
+    public void triggerAlertCheck() {
+        log.info("Triggering alert check manually.");
+        stockAlertGenerator.monitorStockPrices();
+        log.info("Triggering alert check is completed.");
+    }
+
 }

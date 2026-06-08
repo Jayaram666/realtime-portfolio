@@ -19,8 +19,7 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
     boolean existsByTickerSymbolIgnoreCaseAndActiveTrue(String tickerSymbol);
 
     boolean existsByTickerSymbolIgnoreCaseAndExchangeIgnoreCase(
-            String tickerSymbol,
-            String exchange
+            String tickerSymbol
     );
 
     boolean existsByTickerSymbolIgnoreCaseAndExchangeIgnoreCaseAndIdNot(

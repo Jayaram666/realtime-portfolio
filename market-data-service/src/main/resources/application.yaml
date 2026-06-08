@@ -48,19 +48,23 @@ management:
 resilience4j:
   retry:
     instances:
-      yahooFinanceRetry:
+      stockProviderRetry:
         max-attempts: 3
         wait-duration: 1s
         retry-exceptions:
-          - com.realtimeportfolio.common.exception.YahooFinanceClientException
-
+          - com.upstox.ApiException
+          - java.net.SocketTimeoutException
+          - java.net.ConnectException
+          - org.springframework.web.client.ResourceAccessException
 
   circuitbreaker:
     instances:
-      yahooFinanceCircuitBreaker:
-        failure-rate-threshold: 50
+      stockProviderCircuitBreaker:
         sliding-window-size: 10
         minimum-number-of-calls: 5
+        failure-rate-threshold: 50
         wait-duration-in-open-state: 30s
-        record-exceptions:
-          - com.realtimeportfolio.common.exception.YahooFinanceClientException
+        permitted-number-of-calls-in-half-open-state: 3
+
+upstox:
+  access-token: eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiIyS0M5UDQiLCJqdGkiOiI2YTFmZjBkNjg2YzI0NTNjZGY2ZTAwZGEiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaXNQbHVzUGxhbiI6ZmFsc2UsImlhdCI6MTc4MDQ3ODE2NiwiaXNzIjoidWRhcGktZ2F0ZXdheS1zZXJ2aWNlIiwiZXhwIjoxNzgwNTI0MDAwfQ.Ccs2X-gCL5T96cK50_r7-0S30X7IdZ6wSuIkawimKqI

@@ -12,7 +12,6 @@ public interface StockService {
 
     StockResponse createStock(CreateStockRequest request);
 
-    List<StockResponse> searchStocks(String keyword);
 
     StockValidationResponse validateTickerSymbol(String tickerSymbol);
 

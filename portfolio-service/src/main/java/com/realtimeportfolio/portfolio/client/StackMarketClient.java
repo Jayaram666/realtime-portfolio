@@ -14,8 +14,8 @@ import java.util.List;
 @FeignClient(name = "market-data-service")
 public interface StackMarketClient {
 
-    @PostMapping("/api/v1/stocks/tickers")
-    List<StockTickerDto> getStockTickers(@RequestBody TickersDto tickers);
+    @GetMapping("/api/v1/stocks/tickers")
+    List<StockTickerDto> getStockTickers();
 
     @GetMapping("/api/v1/stocks/price/{tickerSymbol}")
     BigDecimal getCurrentPriceBySymbol(@PathVariable("tickerSymbol") String tickerSymbol);

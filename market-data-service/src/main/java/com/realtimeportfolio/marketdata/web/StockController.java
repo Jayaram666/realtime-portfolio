@@ -1,6 +1,7 @@
 package com.realtimeportfolio.marketdata.web;
 
 
+import com.realtimeportfolio.marketdata.producer.StockPriceEventProducer;
 import lombok.extern.slf4j.Slf4j;
 import com.realtimeportfolio.marketdata.client.RemoteStockClient;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +20,12 @@ public class StockController {
 
     private final RemoteStockClient stockClient;
 
-    @PostMapping("/tickers")
-    public List<StockTickerDto> getStockTickers(@RequestBody TickersDto tickers) {
-        log.info("Market data ticker request received. tickerCount={}", tickers != null && tickers.getTickers() != null ? tickers.getTickers().length : 0);
-        List<StockTickerDto> response = stockClient.getTopStocks(tickers);
+    private final StockPriceEventProducer stockPriceEventProducer;
+
+    @GetMapping("/tickers")
+    public List<StockTickerDto> getStockTickers() {
+        log.info("Market data ticker request received.");
+        List<StockTickerDto> response = stockClient.getTopStocks();
         log.info("Market data ticker request completed. resultCount={}", response.size());
         return response;
     }
@@ -33,5 +36,12 @@ public class StockController {
         BigDecimal price = stockClient.getStockPrice(tickerSymbol).orElseThrow();
         log.info("Market data price request completed. tickerSymbol={}, price={}", tickerSymbol, price);
         return price;
+    }
+
+    @GetMapping("/trigerEvent/{tickerSymbol}")
+    public void triggerEvent(@PathVariable("tickerSymbol") String tickerSymbol) {
+        log.info("Triggering events manually. tickerSymbol={}", tickerSymbol);
+        stockPriceEventProducer.fetchAndPublishPrice(tickerSymbol);
+       log.info("Triggering kafka events are completed. tickerSymbol={}", tickerSymbol);
     }
 }

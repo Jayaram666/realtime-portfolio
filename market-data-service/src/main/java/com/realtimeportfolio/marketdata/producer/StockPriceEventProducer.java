@@ -30,7 +30,8 @@ public class StockPriceEventProducer {
 
     public void fetchAndPublishPrice(String tickerSymbol) {
         Optional<BigDecimal> priceOptional =
-                remoteStockClient.getStockPrice(tickerSymbol);
+                remoteStockClient.getStock(tickerSymbol)
+                        .map(dto-> dto.getCurrentPrice());
 
         if (priceOptional.isEmpty()) {
             log.warn("Current price not available for tickerSymbol={}", tickerSymbol);

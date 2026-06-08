@@ -44,7 +44,7 @@ public class StockAlertGenerator {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    @Scheduled(fixedRateString = "${portfolio.alerts.fixed-rate-ms:60000}")
+//    @Scheduled(fixedRateString = "${portfolio.alerts.fixed-rate-ms:60000}")
     public void monitorStockPrices() {
 
         log.info("Stock alert monitoring started");
@@ -144,7 +144,7 @@ public class StockAlertGenerator {
 
         StockAlertMessage message = new StockAlertMessage(
                 threshold.getUserId(),
-                "user@example.com", // later fetch from User table
+                "jayaramulu.talari269@gmail.com", // later fetch from User table
                 portfolio.getTickerSymbol(),
                 portfolio.getCompanyName(),
                 portfolio.getQuantity(),

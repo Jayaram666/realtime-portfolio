@@ -18,7 +18,7 @@ public class StockPriceFetchScheduler {
         this.stockPriceEventProducer = stockPriceEventProducer;
     }
 
-    @Scheduled(fixedRateString = "${portfolio.stock-price-fetch.fixed-rate-ms:30000}")
+//    @Scheduled(fixedRateString = "${portfolio.stock-price-fetch.fixed-rate-ms:30000}")
     public void fetchStockPrices() {
         log.info("US9 stock price scheduler started");
 
@@ -28,11 +28,9 @@ public class StockPriceFetchScheduler {
                 "RELIANCE",
                 "HDFCBANK"
         );
-
         for (String ticker : tickers) {
             stockPriceEventProducer.fetchAndPublishPrice(ticker);
         }
-
         log.info("US9 stock price scheduler completed");
     }
 }

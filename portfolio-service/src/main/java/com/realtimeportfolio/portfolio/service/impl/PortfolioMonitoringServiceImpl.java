@@ -80,6 +80,7 @@ public class PortfolioMonitoringServiceImpl implements PortfolioMonitoringServic
             Long userId,
             UserPortfolio portfolio
     ) {
+        log.info("Calculating stock valuation for userId={}, ticker={}", userId, portfolio.getTickerSymbol());
         Optional<StockPriceUpdateEvent> latestPriceOptional =
                 redisStockPriceStore.getLatestPrice(portfolio.getTickerSymbol());
 

@@ -203,8 +203,8 @@ services:
       SPRING_RABBITMQ_PASSWORD: guest
       SPRING_MAIL_HOST: smtp.gmail.com
       SPRING_MAIL_PORT: 587
-      SPRING_MAIL_USERNAME: ""
-      SPRING_MAIL_PASSWORD: ""
+      SPRING_MAIL_USERNAME: jayaramulu.talari269@gmail.com
+      SPRING_MAIL_PASSWORD: c+eihu?9DCh42&x
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
     networks:
       - realtime-network
