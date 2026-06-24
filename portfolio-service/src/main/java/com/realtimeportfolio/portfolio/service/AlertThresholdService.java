@@ -5,13 +5,14 @@ import com.realtimeportfolio.common.dto.AlertThresholdResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface AlertThresholdService {
 
     AlertThresholdResponse createOrUpdateThreshold(
-            Long userId,
+            UUID userId,
             AlertThresholdRequest request
     );
 
-    List<AlertThresholdResponse> getMyThresholds(Long userId);
+    List<AlertThresholdResponse> getMyThresholds(UUID userId);
 }

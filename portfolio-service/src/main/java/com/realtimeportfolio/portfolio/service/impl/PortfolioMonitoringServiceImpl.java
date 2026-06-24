@@ -20,6 +20,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -40,7 +41,7 @@ public class PortfolioMonitoringServiceImpl implements PortfolioMonitoringServic
 
     @Override
     @Transactional(readOnly = true)
-    public PortfolioMonitoringResponse getRealtimePortfolio(Long userId) {
+    public PortfolioMonitoringResponse getRealtimePortfolio(UUID userId) {
 
         log.info("US9 realtime monitoring started. userId={}", userId);
 
@@ -77,7 +78,7 @@ public class PortfolioMonitoringServiceImpl implements PortfolioMonitoringServic
     }
 
     private PortfolioStockValuationResponse calculateStockValuation(
-            Long userId,
+            UUID userId,
             UserPortfolio portfolio
     ) {
         log.info("Calculating stock valuation for userId={}, ticker={}", userId, portfolio.getTickerSymbol());
@@ -135,7 +136,7 @@ public class PortfolioMonitoringServiceImpl implements PortfolioMonitoringServic
     }
 
     private ThresholdStatus calculateThresholdStatus(
-            Long userId,
+            UUID userId,
             String tickerSymbol,
             BigDecimal currentPrice,
             boolean currentPriceAvailable

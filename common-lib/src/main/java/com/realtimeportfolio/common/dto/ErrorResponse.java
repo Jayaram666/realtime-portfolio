@@ -11,13 +11,70 @@ import java.util.List;
 public class ErrorResponse {
 
     private LocalDateTime timestamp;
-    private int status;
+    private Integer status;
     private String error;
     private String message;
     private String path;
     private List<String> validationErrors;
 
     public ErrorResponse() {
+    }
+
+    // 1 Field (Status only)
+    public static ErrorResponse of(Integer status) {
+        ErrorResponse res = new ErrorResponse();
+        res.status = status;
+        return res;
+    }
+
+    // 2 Fields (Status, Error)
+    public static ErrorResponse of(Integer status, String error) {
+        ErrorResponse res = new ErrorResponse();
+        res.status = status;
+        res.error = error;
+        return res;
+    }
+
+    // 3 Fields (Status, Error, Message)
+    public static ErrorResponse of(Integer status, String error, String message) {
+        ErrorResponse res = new ErrorResponse();
+        res.status = status;
+        res.error = error;
+        res.message = message;
+        return res;
+    }
+
+    // 4 Fields (Status, Error, Message, Path)
+    public static ErrorResponse of(Integer status, String error, String message, String path) {
+        ErrorResponse res = new ErrorResponse();
+        res.status = status;
+        res.error = error;
+        res.message = message;
+        res.path = path;
+        return res;
+    }
+
+    // 5 Fields (Status, Error, Message, Path, ValidationErrors)
+    public static ErrorResponse of(Integer status, String error, String message, String path, List<String> validationErrors) {
+        ErrorResponse res = new ErrorResponse();
+        res.status = status;
+        res.error = error;
+        res.message = message;
+        res.path = path;
+        res.validationErrors = validationErrors;
+        return res;
+    }
+
+    // 6 Fields (All fields explicit, including custom Timestamp)
+    public static ErrorResponse of(LocalDateTime timestamp, Integer status, String error, String message, String path, List<String> validationErrors) {
+        ErrorResponse res = new ErrorResponse();
+        res.timestamp = timestamp;
+        res.status = status;
+        res.error = error;
+        res.message = message;
+        res.path = path;
+        res.validationErrors = validationErrors;
+        return res;
     }
 
     public ErrorResponse(
@@ -36,7 +93,7 @@ public class ErrorResponse {
         this.validationErrors = validationErrors;
     }
 
-    public ErrorResponse(int value, String validationFailed, List<String> errors) {
+    public ErrorResponse(Integer value, String validationFailed, List<String> errors) {
         this.timestamp = LocalDateTime.now();
         this.status = value;
         this.error = validationFailed;
@@ -45,7 +102,7 @@ public class ErrorResponse {
         this.path = null;
     }
 
-    public <T> ErrorResponse(int value, String name, String userAlreadyExists, List<T> emailAlreadyExistsInDatabase) {
+    public <T> ErrorResponse(Integer value, String name, String userAlreadyExists, List<T> emailAlreadyExistsInDatabase) {
 
         this.timestamp = LocalDateTime.now();
         this.status = value;
@@ -61,37 +118,41 @@ public class ErrorResponse {
 
     /**
      * Used for normal business errors.
-     *
+     * <p>
      * Example:
      * Stock not found
      * Duplicate stock
      * Invalid ticker symbol
      */
-    public static ErrorResponse of(
-            int status,
-            String error,
-            String message,
-            String path
-    ) {
+    public static ErrorResponse of(String message) {
+        return new ErrorResponse(message);
+    }
+
+    public ErrorResponse(String message) {
+        this.message = message;
+    }
+
+    public static ErrorResponse internalServerError(String message) {
         return new ErrorResponse(
                 LocalDateTime.now(),
-                status,
-                error,
+                500,
+                "INTERNAL_SERVER_ERROR",
                 message,
-                path,
+                null,
                 null
         );
     }
 
+
     /**
      * Used for validation errors from @Valid.
-     *
+     * <p>
      * Example:
      * companyName: Company name is required
      * tickerSymbol: Ticker symbol is required
      */
     public static ErrorResponse validation(
-            int status,
+            Integer status,
             String error,
             String message,
             String path,
@@ -112,6 +173,18 @@ public class ErrorResponse {
      */
     public static ErrorResponse builder() {
         return new ErrorResponse();
+    }
+
+    public static ErrorResponse of(int value, String name, String message, String requestURI) {
+
+    return new ErrorResponse(
+                LocalDateTime.now(),
+                value,
+                name,
+                message,
+                requestURI,
+                null
+        );
     }
 
     public ErrorResponse timestamp(LocalDateTime timestamp) {

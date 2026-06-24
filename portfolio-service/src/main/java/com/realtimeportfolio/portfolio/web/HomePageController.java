@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import com.realtimeportfolio.common.dto.HomePageResponse;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -16,7 +18,7 @@ public class HomePageController {
     private final HomePageService homePageService;
 
     @GetMapping("/home")
-    public HomePageResponse getHomePageData(@RequestHeader("X-User-Id") Long userId,@RequestHeader("X-User-Email") String userEmail) {
+    public HomePageResponse getHomePageData(@RequestHeader("X-User-Id") UUID userId, @RequestHeader("X-User-Email") String userEmail) {
         log.info("Home page API called. userEmail={}", userEmail);
         HomePageResponse response = homePageService.getHomePageData(userEmail);
         log.info("Home page API completed. userEmail={}", userEmail);

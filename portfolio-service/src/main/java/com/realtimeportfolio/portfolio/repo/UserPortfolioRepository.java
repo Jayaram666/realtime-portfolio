@@ -5,13 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface UserPortfolioRepository extends JpaRepository<UserPortfolio, Long> {
+public interface UserPortfolioRepository extends JpaRepository<UserPortfolio, UUID> {
 
     Optional<UserPortfolio> findByUserIdAndTickerSymbolIgnoreCase(
-            Long userId,
+            UUID userId,
             String tickerSymbol
     );
-    List<UserPortfolio> findByUserIdOrderByCompanyNameAsc(Long userId);
+    List<UserPortfolio> findByUserIdOrderByCompanyNameAsc(UUID userId);
 
 }

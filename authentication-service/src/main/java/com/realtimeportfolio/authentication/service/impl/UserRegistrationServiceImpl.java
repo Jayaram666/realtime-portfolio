@@ -2,6 +2,9 @@ package com.realtimeportfolio.authentication.service.impl;
 
 
 
+import com.realtimeportfolio.authentication.dto.TokenRefreshRequest;
+import com.realtimeportfolio.authentication.dto.TokenRefreshResponse;
+import com.realtimeportfolio.common.exception.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import com.realtimeportfolio.authentication.entity.User;
 import com.realtimeportfolio.authentication.repo.UserRepository;
@@ -41,15 +44,13 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         List<String> validationErrors = validator.validate(request);
 
         if (!validationErrors.isEmpty()) {
-            throw new UserRegistrationException(validationErrors);
+            throw new ValidationException(validationErrors);
         }
 
         String normalizedEmail = request.getEmail().trim().toLowerCase();
 
         if (userRepository.existsByEmail(normalizedEmail)) {
-            throw new UserRegistrationException(
-                    Collections.singletonList("User name or email already exists in DB")
-            );
+            throw new ValidationException("User name or email already exists in DB");
         }
 
         String encryptedPassword = passwordEncoder.encode(request.getPassword());
@@ -72,4 +73,5 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
                 "User registered successfully"
         );
     }
+
 }

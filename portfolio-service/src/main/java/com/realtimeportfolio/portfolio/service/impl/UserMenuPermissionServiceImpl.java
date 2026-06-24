@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -22,7 +23,7 @@ public class UserMenuPermissionServiceImpl implements UserMenuPermissionService 
     private final UserMenuPermissionRepository menuRepository;
 
     @Override
-    public List<MenuResponse> findMenuByUserId(Long userId) {
+    public List<MenuResponse> findMenuByUserId(UUID userId) {
         log.debug("Fetching menu permissions. userId={}", userId);
         List<MenuPermissionRow> menuPermissionRows = menuRepository.findMenuPermissionsByUserId(userId);
         log.debug("Menu permission rows fetched. userId={}, rowCount={}", userId, menuPermissionRows.size());

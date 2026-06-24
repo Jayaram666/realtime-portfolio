@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,9 +20,9 @@ public class UserPortfolio {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private UUID userId;
     @Column(name = "company_name", nullable = false)
     private String companyName;
     @Column(name = "ticker_symbol", nullable = false)
@@ -59,7 +60,7 @@ public class UserPortfolio {
         calculateTotalInvestedAmount();
     }
 
-    public UserPortfolio(Long id, Long userId, String companyName, String tickerSymbol, Integer quantity, BigDecimal buyingPrice) {
+    public UserPortfolio(UUID id, UUID userId, String companyName, String tickerSymbol, Integer quantity, BigDecimal buyingPrice) {
         this.userId = userId;
         this.companyName = companyName;
         this.tickerSymbol = tickerSymbol;

@@ -4,6 +4,7 @@ package com.realtimeportfolio.marketdata.scheduler;
 
 import lombok.extern.slf4j.Slf4j;
 import com.realtimeportfolio.marketdata.producer.StockPriceEventProducer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,9 @@ import java.util.List;
 @Component
 public class StockPriceFetchScheduler {
     private final StockPriceEventProducer stockPriceEventProducer;
+
+    @Value("${stack-market-ticker-list}")
+    private List<String> tickerList;
 
     public StockPriceFetchScheduler(StockPriceEventProducer stockPriceEventProducer) {
         this.stockPriceEventProducer = stockPriceEventProducer;

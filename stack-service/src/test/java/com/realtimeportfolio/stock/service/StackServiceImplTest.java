@@ -62,7 +62,7 @@ public class StackServiceImplTest {
         createStockRequest.setTickerSymbol("TCS");
         createStockRequest.setCompanyName("Tata Consultancy Services");
         createStockRequest.setExchange("NSE");
-        Mockito.when(stockRepository.existsByTickerSymbolIgnoreCaseAndExchangeIgnoreCase(Mockito.any())).thenReturn(true);
+        Mockito.when(stockRepository.existsByTickerSymbolIgnoreCase(Mockito.any())).thenReturn(true);
         Assertions.assertThrows(DuplicateResourceException.class, () -> {
             stockService.createStock(createStockRequest);
         }, "Expected createStock to throw, but it didn't");

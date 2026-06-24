@@ -6,8 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface UserMenuPermissionRepository extends JpaRepository<UserMenuPermission, Long> {
+public interface UserMenuPermissionRepository extends JpaRepository<UserMenuPermission, UUID> {
 
     @Query("SELECT new com.realtimeportfolio.common.dto.MenuPermissionRow(" +
             "m.name, " +
@@ -20,5 +21,5 @@ public interface UserMenuPermissionRepository extends JpaRepository<UserMenuPerm
             "WHERE ump.user.id = :userId " +
             "AND m.active = true " +
             "ORDER BY m.displayOrder ASC")
-    List<MenuPermissionRow> findMenuPermissionsByUserId(Long userId);
+    List<MenuPermissionRow> findMenuPermissionsByUserId(UUID userId);
 }

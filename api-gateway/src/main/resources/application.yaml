@@ -48,3 +48,10 @@ management:
     web:
       exposure:
         include: health,info,gateway
+
+gateway:
+  security:
+    public-urls:
+      - /auth/login
+      - /auth/register
+      - /auth/refresh

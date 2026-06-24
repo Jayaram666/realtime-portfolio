@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -22,7 +23,7 @@ public class UserPortfolioService {
 
     @Transactional
     public PortfolioResponse createPortfolio(
-            Long userId,
+            UUID userId,
             CreatePortfolioRequest request
     ) {
         String tickerSymbol = request.getTickerSymbol().trim().toUpperCase();
@@ -60,7 +61,7 @@ public class UserPortfolioService {
     }
 
     @Transactional(readOnly = true)
-    public List<PortfolioResponse> getMyPortfolio(Long userId) {
+    public List<PortfolioResponse> getMyPortfolio(UUID userId) {
         log.info("Fetching portfolio for userId={}", userId);
 
         return userPortfolioRepository.findByUserIdOrderByCompanyNameAsc(userId)

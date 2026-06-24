@@ -3,6 +3,8 @@ package com.realtimeportfolio.portfolio.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "menu_permission",
         uniqueConstraints = {
@@ -16,7 +18,7 @@ public class MenuPermission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id", nullable = false)

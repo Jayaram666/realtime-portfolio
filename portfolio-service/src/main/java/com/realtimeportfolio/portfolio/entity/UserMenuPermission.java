@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "user_menu_permission",
         uniqueConstraints = {
@@ -19,7 +21,7 @@ public class UserMenuPermission {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+        private UUID id;
 
         @ManyToOne
         @JoinColumn(name = "user_id", nullable = false)

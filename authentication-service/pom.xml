@@ -81,6 +81,18 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>10.15.2</version> <!-- Add this tag with your desired version -->
+        </dependency>
+
+        <!-- Line 90 -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <version>10.15.2</version> <!-- Ensure this version matches flyway-core -->
+        </dependency>
     </dependencies>
 
     <build>

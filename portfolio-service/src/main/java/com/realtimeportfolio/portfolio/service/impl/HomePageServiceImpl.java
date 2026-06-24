@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -31,7 +32,6 @@ public class HomePageServiceImpl implements HomePageService {
 
     @Override
     public HomePageResponse getHomePageData(String email) {
-
 
         UserDto user = getUserWithFallback(email);
 
@@ -76,7 +76,7 @@ public class HomePageServiceImpl implements HomePageService {
         }
     }
 
-    private List<MenuResponse> getMenusWithFallback(Long userId) {
+    private List<MenuResponse> getMenusWithFallback(UUID userId) {
 
         try {
             List<MenuResponse> menus =

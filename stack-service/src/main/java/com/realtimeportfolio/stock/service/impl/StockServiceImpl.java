@@ -38,7 +38,7 @@ public class StockServiceImpl implements StockService {
         );
 
         boolean alreadyExists =
-                stockRepository.existsByTickerSymbolIgnoreCaseAndExchangeIgnoreCase(
+                stockRepository.existsByTickerSymbolIgnoreCase(
                         tickerSymbol
                 );
 

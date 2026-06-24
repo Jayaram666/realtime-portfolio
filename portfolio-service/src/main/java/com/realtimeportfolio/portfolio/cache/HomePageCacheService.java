@@ -6,6 +6,7 @@ import com.realtimeportfolio.common.dto.UserDto;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface HomePageCacheService {
 
@@ -13,9 +14,9 @@ public interface HomePageCacheService {
 
     Optional<UserDto> getCachedUser(String email);
 
-    void cacheUserMenus(Long userId, List<MenuResponse> menus);
+    void cacheUserMenus(UUID userId, List<MenuResponse> menus);
 
-    Optional<List<MenuResponse>> getCachedUserMenus(Long userId);
+    Optional<List<MenuResponse>> getCachedUserMenus(UUID userId);
 
     void cacheStockTickers(List<StockTickerDto> stockTickers);
 

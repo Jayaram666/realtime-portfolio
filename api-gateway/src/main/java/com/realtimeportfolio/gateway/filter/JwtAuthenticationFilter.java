@@ -1,7 +1,8 @@
 package com.realtimeportfolio.gateway.filter;
 
 
-
+import com.realtimeportfolio.gateway.util.GatewaySecurityConfig;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.realtimeportfolio.gateway.validator.JwtTokenValidator;
 import com.realtimeportfolio.gateway.validator.PublicEndpointValidator;
@@ -19,23 +20,19 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 
 import org.springframework.stereotype.Component;
 
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private final JwtTokenValidator jwtTokenValidator;
     private final PublicEndpointValidator publicEndpointValidator;
+    private final GatewaySecurityConfig gatewaySecurityConfig;
 
-    public JwtAuthenticationFilter(
-            JwtTokenValidator jwtTokenValidator,
-            PublicEndpointValidator publicEndpointValidator
-    ) {
-        this.jwtTokenValidator = jwtTokenValidator;
-        this.publicEndpointValidator = publicEndpointValidator;
-    }
 
     @Override
     public Mono<Void> filter(
@@ -44,7 +41,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     ) {
         ServerHttpRequest request = exchange.getRequest();
 
-        if (publicEndpointValidator.isPublicEndpoint(request)) {
+        if (gatewaySecurityConfig.isPublic(request.getURI().getPath())) {
             return chain.filter(exchange);
         }
 

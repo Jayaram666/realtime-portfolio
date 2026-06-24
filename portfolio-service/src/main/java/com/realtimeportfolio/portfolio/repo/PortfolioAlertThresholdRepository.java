@@ -5,14 +5,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface PortfolioAlertThresholdRepository
-        extends JpaRepository<PortfolioAlertThreshold, Long> {
+        extends JpaRepository<PortfolioAlertThreshold, UUID> {
 
     Optional<PortfolioAlertThreshold> findByUserIdAndTickerSymbolIgnoreCase(
-            Long userId,
+            UUID userId,
             String tickerSymbol
     );
 
-    List<PortfolioAlertThreshold> findByUserIdAndActiveTrueOrderByTickerSymbolAsc(Long userId);
+    List<PortfolioAlertThreshold> findByUserIdAndActiveTrueOrderByTickerSymbolAsc(UUID userId);
 }

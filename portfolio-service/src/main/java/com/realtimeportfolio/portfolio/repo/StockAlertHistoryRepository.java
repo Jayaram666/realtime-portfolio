@@ -4,11 +4,12 @@ import com.realtimeportfolio.portfolio.entity.StockAlertHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-public interface StockAlertHistoryRepository extends JpaRepository<StockAlertHistory, Long> {
+public interface StockAlertHistoryRepository extends JpaRepository<StockAlertHistory, UUID> {
 
     boolean existsByUserIdAndTickerSymbolAndAlertTypeAndCreatedAtAfter(
-            Long userId,
+            UUID userId,
             String tickerSymbol,
             String alertType,
             LocalDateTime createdAt

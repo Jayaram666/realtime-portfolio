@@ -8,6 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/portfolio")
@@ -24,7 +26,7 @@ public class PortfolioUploadController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public PortfolioUploadResponse uploadPortfolio(
-            @RequestParam("file") MultipartFile file,@RequestHeader("X-User-Id") Long authenticatedUserId
+            @RequestParam("file") MultipartFile file,@RequestHeader("X-User-Id") UUID authenticatedUserId
     ) {
 
         log.info("Portfolio upload API called. userId={}, fileName={}, size={}",

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -35,7 +36,7 @@ public class AlertThresholdServiceImpl implements AlertThresholdService {
     @Transactional
     @Override
     public AlertThresholdResponse createOrUpdateThreshold(
-            Long userId,
+            UUID userId,
             AlertThresholdRequest request
     ) {
         String tickerSymbol = request.getTickerSymbol().trim().toUpperCase();
@@ -83,7 +84,7 @@ public class AlertThresholdServiceImpl implements AlertThresholdService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<AlertThresholdResponse> getMyThresholds(Long userId) {
+    public List<AlertThresholdResponse> getMyThresholds(UUID userId) {
         log.info("Fetching alert thresholds for userId={}", userId);
 
         return thresholdRepository.findByUserIdAndActiveTrueOrderByTickerSymbolAsc(userId)

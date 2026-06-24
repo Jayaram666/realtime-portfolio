@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/portfolio/monitoring")
@@ -23,7 +25,7 @@ public class PortfolioMonitoringController {
     }
 
     @GetMapping("/realtime")
-    public PortfolioMonitoringResponse getRealtimePortfolio(@RequestHeader("X-User-Id") Long authenticatedUserId, @RequestHeader("X-User-Email") String userEmai) {
+    public PortfolioMonitoringResponse getRealtimePortfolio(@RequestHeader("X-User-Id") UUID authenticatedUserId, @RequestHeader("X-User-Email") String userEmai) {
 
 
         log.info("Realtime portfolio monitoring API called. userId={}", authenticatedUserId);

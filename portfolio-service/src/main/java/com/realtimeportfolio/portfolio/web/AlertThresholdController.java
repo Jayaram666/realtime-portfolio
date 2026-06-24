@@ -13,6 +13,7 @@ import com.realtimeportfolio.common.dto.AlertThresholdResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -26,7 +27,7 @@ public class AlertThresholdController {
 
     @PostMapping
     public AlertThresholdResponse createOrUpdateThreshold(
-            @Valid @RequestBody AlertThresholdRequest request,@RequestHeader("X-User-Id") Long userId
+            @Valid @RequestBody AlertThresholdRequest request,@RequestHeader("X-User-Id") UUID userId
     ) {
         /*
          * For now hardcoded.
@@ -42,7 +43,7 @@ public class AlertThresholdController {
 
     @GetMapping
     public List<AlertThresholdResponse> getMyThresholds() {
-        Long authenticatedUserId = 1L;
+        UUID authenticatedUserId = UUID.randomUUID();
         log.info("Get alert thresholds API called. userId={}", authenticatedUserId);
 
         List<AlertThresholdResponse> response = alertThresholdService.getMyThresholds(authenticatedUserId);

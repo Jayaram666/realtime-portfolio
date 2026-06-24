@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -25,7 +26,7 @@ public class PortfolioUploadServiceImpl implements PortfolioUploadService {
     private final UserPortfolioRepository userPortfolioRepository;
 
     @Override
-    public PortfolioUploadResponse uploadPortfolio(Long userId, MultipartFile file) {
+    public PortfolioUploadResponse uploadPortfolio(UUID userId, MultipartFile file) {
         log.info("Received portfolio upload request for userId: {}, fileName: {}", userId, file.getOriginalFilename());
         validateFile(file);
         List<PortfolioUploadRow> rows = portfolioExcelParser.parse(file);
@@ -53,7 +54,7 @@ public class PortfolioUploadServiceImpl implements PortfolioUploadService {
     }
 
     private void processRow(
-            Long userId,
+            UUID userId,
             PortfolioUploadRow row,
             PortfolioUploadResponse response
     ) {

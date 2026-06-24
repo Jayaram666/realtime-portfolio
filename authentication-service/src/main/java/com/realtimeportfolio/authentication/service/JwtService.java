@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 
 @Slf4j
 @Service
@@ -37,6 +38,18 @@ public class JwtService {
                 .claim("name", user.getName())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(User user) {
+        // 7 days
+        long refreshExpirationMs = 7 * 24 * 60 * 60 * 1000;
+        return Jwts.builder()
+                .setClaims(new HashMap<>()) // Slim payload (No roles/permissions)
+                .setSubject(user.getEmail())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpirationMs)) // Long duration
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -66,5 +79,11 @@ public class JwtService {
     private Key getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+    /**
+     * Converts the configured millisecond token lifetime into seconds.
+     */
+    public Long getAccessTokenExpirationInSeconds() {
+        return this.jwtExpirationMs / 1000;
     }
 }

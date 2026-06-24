@@ -94,7 +94,7 @@ services:
     environment:
       SERVER_PORT: 8081
       SPRING_APPLICATION_NAME: authentication-service
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/investor_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/auth_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: jayaram@9959
       SPRING_DATA_REDIS_HOST: realtime-redis
@@ -102,6 +102,7 @@ services:
       JWT_SECRET: my-super-secure-secret-key-with-32-chars-minimum
       JWT_EXPIRATION_MS: 86400000
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: true
     networks:
       - realtime-network
 

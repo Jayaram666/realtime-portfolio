@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -58,7 +59,7 @@ public class RedisHomePageCacheService implements HomePageCacheService {
     }
 
     @Override
-    public void cacheUserMenus(Long userId, List<MenuResponse> menus) {
+    public void cacheUserMenus(UUID userId, List<MenuResponse> menus) {
         String key = MENU_KEY_PREFIX + userId;
 
         redisTemplate.opsForValue().set(
@@ -74,7 +75,7 @@ public class RedisHomePageCacheService implements HomePageCacheService {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<List<MenuResponse>> getCachedUserMenus(Long userId) {
+    public Optional<List<MenuResponse>> getCachedUserMenus(UUID userId) {
         String key = MENU_KEY_PREFIX + userId;
 
         Object value = redisTemplate.opsForValue().get(key);

@@ -2,8 +2,11 @@ package com.realtimeportfolio.authentication.entity;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import java.time.LocalDateTime;
 
+@Getter
 @Entity
 @Table(
         name = "users",
@@ -11,11 +14,12 @@ import java.time.LocalDateTime;
                 @UniqueConstraint(name = "uk_users_email", columnNames = "email")
         }
 )
+@AllArgsConstructor
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private java.util.UUID id;
 
     @Column(nullable = false, length = 150)
     private String name;
@@ -39,23 +43,4 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
 }

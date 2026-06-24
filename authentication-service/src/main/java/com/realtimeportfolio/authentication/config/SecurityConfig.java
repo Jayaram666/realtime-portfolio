@@ -20,45 +20,32 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Autowired
-    private  JwtAuthenticationFilter jwtAuthenticationFilter;
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Autowired
-    private  UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // Disable CSRF because we are using JWT token, not browser session/cookie auth
                 .csrf(csrf -> csrf.disable())
 
-                // JWT should be stateless. Server should not create HTTP session.
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
-                // Use our custom UserDetailsService + BCryptPasswordEncoder
                 .authenticationProvider(authenticationProvider())
-
                 .authorizeHttpRequests(auth -> auth
-
-                        // Public APIs
                         .requestMatchers(
                                 "/api/v1/users/register",
-                                "/api/v1/auth/login"
+                                "/api/v1/auth/login","/api/v1/auth/refresh-token"
                         ).permitAll()
-
-                        // Protected APIs
                         .requestMatchers(
                                 "/api/v1/home",
                                 "/api/v1/menus"
                         ).authenticated()
-
-                        // Any other API should also be authenticated
                         .anyRequest().authenticated()
                 )
-
-                // JWT filter should execute before Spring Security's username/password filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
@@ -66,6 +53,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
 

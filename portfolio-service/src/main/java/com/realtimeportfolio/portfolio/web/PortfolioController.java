@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -26,7 +27,7 @@ public class PortfolioController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PortfolioResponse createPortfolio(
-            @Valid @RequestBody CreatePortfolioRequest request,@RequestHeader("X-User-Id") Long authenticatedUserId
+            @Valid @RequestBody CreatePortfolioRequest request,@RequestHeader("X-User-Id") UUID authenticatedUserId
     ) {
 
         log.info("Create portfolio API called. userId={}, tickerSymbol={}", authenticatedUserId, request.getTickerSymbol());
@@ -37,7 +38,7 @@ public class PortfolioController {
     }
 
     @GetMapping
-    public List<PortfolioResponse> getMyPortfolio(@RequestHeader("X-User-Id") Long authenticatedUserId) {
+    public List<PortfolioResponse> getMyPortfolio(@RequestHeader("X-User-Id") UUID authenticatedUserId) {
         log.info("Get portfolio API called. userId={}", authenticatedUserId);
 
         List<PortfolioResponse> response = userPortfolioService.getMyPortfolio(authenticatedUserId);
