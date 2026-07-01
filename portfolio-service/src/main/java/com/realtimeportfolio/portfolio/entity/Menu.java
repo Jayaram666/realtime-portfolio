@@ -18,7 +18,7 @@ import java.util.UUID;
 public class Menu {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private UUID id;
 
     @Column(name = "name", nullable = false)

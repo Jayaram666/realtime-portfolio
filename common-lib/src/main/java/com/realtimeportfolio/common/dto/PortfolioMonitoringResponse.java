@@ -10,7 +10,6 @@ public class PortfolioMonitoringResponse {
     private BigDecimal totalCurrentValue;
     private BigDecimal totalGainLossAmount;
     private BigDecimal totalGainLossPercent;
-
     private LocalDateTime responseGeneratedAt;
 
     private List<PortfolioStockValuationResponse> stocks;

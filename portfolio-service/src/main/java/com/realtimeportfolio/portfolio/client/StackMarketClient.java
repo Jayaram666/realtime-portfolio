@@ -1,5 +1,7 @@
 package com.realtimeportfolio.portfolio.client;
 
+import com.realtimeportfolio.common.dto.ApiResponse;
+import com.realtimeportfolio.common.dto.StockPrice;
 import com.realtimeportfolio.common.dto.StockTickerDto;
 import com.realtimeportfolio.common.dto.TickersDto;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -15,8 +17,8 @@ import java.util.List;
 public interface StackMarketClient {
 
     @GetMapping("/api/v1/stocks/tickers")
-    List<StockTickerDto> getStockTickers();
+    ApiResponse<List<StockTickerDto>> getStockTickers();
 
     @GetMapping("/api/v1/stocks/price/{tickerSymbol}")
-    BigDecimal getCurrentPriceBySymbol(@PathVariable("tickerSymbol") String tickerSymbol);
+    ApiResponse<StockPrice> getCurrentPriceBySymbol(@PathVariable("tickerSymbol") String tickerSymbol);
 }

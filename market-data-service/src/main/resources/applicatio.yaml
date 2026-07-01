@@ -1,46 +1,46 @@
-server:
-  port: ${SERVER_PORT:8084}
-
-spring:
-  application:
-    name: ${SPRING_APPLICATION_NAME:market-data-service}
-
-  data:
-    redis:
-      host: ${SPRING_DATA_REDIS_HOST:localhost}
-      port: ${SPRING_DATA_REDIS_PORT:6379}
-
-  kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-    consumer:
-      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:market-data-service}
-      auto-offset-reset: latest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring:
-          json:
-            trusted:
-              packages: "*"
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
-portfolio:
-  stock:
-    market-suffix: ${PORTFOLIO_STOCK_MARKET_SUFFIX:.NS}
-  stock-price-fetch:
-    fixed-rate-ms: ${PORTFOLIO_STOCK_PRICE_FETCH_FIXED_RATE_MS:30000}
-
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
-    register-with-eureka: true
-    fetch-registry: true
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
+#server:
+#  port: ${SERVER_PORT:8084}
+#
+#spring:
+#  application:
+#    name: ${SPRING_APPLICATION_NAME:market-data-service}
+#
+#  data:
+#    redis:
+#      host: ${SPRING_DATA_REDIS_HOST:localhost}
+#      port: ${SPRING_DATA_REDIS_PORT:6379}
+#
+#  kafka:
+#    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+#    consumer:
+#      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:market-data-service}
+#      auto-offset-reset: latest
+#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+#      properties:
+#        spring:
+#          json:
+#            trusted:
+#              packages: "*"
+#    producer:
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#
+#portfolio:
+#  stock:
+#    market-suffix: ${PORTFOLIO_STOCK_MARKET_SUFFIX:.NS}
+#  stock-price-fetch:
+#    fixed-rate-ms: ${PORTFOLIO_STOCK_PRICE_FETCH_FIXED_RATE_MS:30000}
+#
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+#    register-with-eureka: true
+#    fetch-registry: true
+#
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: health,info

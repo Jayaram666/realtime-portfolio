@@ -15,5 +15,7 @@ public interface PortfolioAlertThresholdRepository
             String tickerSymbol
     );
 
+    List<PortfolioAlertThreshold> findByUserId(UUID userId);
+
     List<PortfolioAlertThreshold> findByUserIdAndActiveTrueOrderByTickerSymbolAsc(UUID userId);
 }

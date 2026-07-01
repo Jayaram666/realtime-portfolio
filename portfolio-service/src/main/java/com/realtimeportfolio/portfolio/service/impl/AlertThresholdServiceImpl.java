@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -91,13 +92,13 @@ public class AlertThresholdServiceImpl implements AlertThresholdService {
                 .stream()
                 .map(threshold -> {
                     UserPortfolio portfolio = userPortfolioRepository
-                            .findByUserIdAndTickerSymbolIgnoreCase(userId, threshold.getTickerSymbol())
-                            .orElseThrow(() -> new RuntimeException(
-                                    "Portfolio not found for ticker: " + threshold.getTickerSymbol()
-                            ));
-
-                    return toResponse(threshold, portfolio.getBuyingPrice());
+                            .findByUserIdAndTickerSymbolIgnoreCase(userId, threshold.getTickerSymbol()).orElse(null);
+                    if(portfolio!=null) {
+                        return toResponse(threshold, portfolio.getBuyingPrice());
+                    }
+                    return null;
                 })
+                .filter(Objects::nonNull)
                 .toList();
     }
 

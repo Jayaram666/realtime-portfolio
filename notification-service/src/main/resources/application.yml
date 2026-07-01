@@ -28,14 +28,16 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: jayaramulu.talari269@gmail.com
-    password: cjrl ctlh sacp xfiv
+    username: pavithraashok2796@gmail.com
+    password: tnuj yenl qlkb elmv
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+            required: true
+
 
 eureka:
   client:

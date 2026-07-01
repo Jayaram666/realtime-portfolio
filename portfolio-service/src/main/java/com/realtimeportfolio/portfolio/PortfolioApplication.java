@@ -12,7 +12,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableKafka
-//@EnableScheduling
+@EnableScheduling
 @EnableFeignClients(basePackages = "com.realtimeportfolio.portfolio.client")
 @Import({
         GlobalExceptionHandler.class,

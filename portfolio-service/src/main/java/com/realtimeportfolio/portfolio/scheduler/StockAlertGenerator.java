@@ -1,7 +1,8 @@
 package com.realtimeportfolio.portfolio.scheduler;
 
 
-
+import com.realtimeportfolio.portfolio.entity.StockAlertHistory;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import com.realtimeportfolio.portfolio.entity.PortfolioAlertThreshold;
 import com.realtimeportfolio.portfolio.entity.UserPortfolio;
@@ -16,6 +17,8 @@ import com.realtimeportfolio.common.dto.StockTickerDto;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,6 +27,7 @@ import java.util.List;
 @Slf4j
 @Service
 public class StockAlertGenerator {
+
     private final PortfolioAlertThresholdRepository thresholdRepository;
     private final UserPortfolioRepository userPortfolioRepository;
     private final StockAlertHistoryRepository alertHistoryRepository;
@@ -44,7 +48,7 @@ public class StockAlertGenerator {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-//    @Scheduled(fixedRateString = "${portfolio.alerts.fixed-rate-ms:60000}")
+    @Scheduled(fixedRateString = "${portfolio.alerts.fixed-rate-ms:60000}")
     public void monitorStockPrices() {
 
         log.info("Stock alert monitoring started");
@@ -118,16 +122,10 @@ public class StockAlertGenerator {
             BigDecimal currentPrice,
             String alertType
     ) {
-        LocalDateTime last24Hours = LocalDateTime.now().minusHours(24);
+//        LocalDateTime last24Hours = LocalDateTime.now().minusHours(24);
 
-        boolean alreadySent =
-                alertHistoryRepository.existsByUserIdAndTickerSymbolAndAlertTypeAndCreatedAtAfter(
-                        threshold.getUserId(),
-                        threshold.getTickerSymbol(),
-                        alertType,
-                        last24Hours
-                );
-
+        StockAlertHistory stockAlertHistory = alertHistoryRepository.findById(threshold.getUserId()).get();
+        boolean alreadySent = stockAlertHistory.isEmailSent() && stockAlertHistory.getAlertType().equals(alertType);
         if (alreadySent) {
             log.info("Alert already sent recently. userId={}, tickerSymbol={}, alertType={}",
                     threshold.getUserId(),
@@ -142,9 +140,18 @@ public class StockAlertGenerator {
         BigDecimal totalGainLoss =
                 gainLossPerStock.multiply(BigDecimal.valueOf(portfolio.getQuantity()));
 
+
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        String emailFromHeader = null;
+
+        if (attributes != null) {
+            HttpServletRequest request = attributes.getRequest();
+            // 2. Extract the header injected by your gateway
+            emailFromHeader = request.getHeader("X-User-Email");
+        }
         StockAlertMessage message = new StockAlertMessage(
                 threshold.getUserId(),
-                "jayaramulu.talari269@gmail.com", // later fetch from User table
+                emailFromHeader,
                 portfolio.getTickerSymbol(),
                 portfolio.getCompanyName(),
                 portfolio.getQuantity(),
@@ -160,6 +167,8 @@ public class StockAlertGenerator {
                 RabbitMQRoutingKeys.EMAIL_ALERT_ROUTING_KEY,
                 message
         );
+        stockAlertHistory.setEmailSent(true);
+        alertHistoryRepository.save(stockAlertHistory);
 
         log.info("Stock alert message published. userId={}, tickerSymbol={}, alertType={}",
                 threshold.getUserId(),

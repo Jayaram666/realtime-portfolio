@@ -2,6 +2,9 @@ package com.realtimeportfolio.portfolio.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -12,10 +15,11 @@ import java.util.UUID;
                 @UniqueConstraint(name = "uk_users_email", columnNames = "email")
         }
 )
+@Setter
+@Getter
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID id;
 
     @Column(nullable = false, length = 150)
@@ -24,8 +28,6 @@ public class User {
     @Column(nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
-    private String passwordHash;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -33,10 +35,10 @@ public class User {
     protected User() {
     }
 
-    public User(String name, String email, String passwordHash) {
+    public User(UUID userId,String name, String email) {
+        this.id = userId;
         this.name = name;
         this.email = email;
-        this.passwordHash = passwordHash;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -50,10 +52,6 @@ public class User {
 
     public String getEmail() {
         return email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
     }
 
     public LocalDateTime getCreatedAt() {

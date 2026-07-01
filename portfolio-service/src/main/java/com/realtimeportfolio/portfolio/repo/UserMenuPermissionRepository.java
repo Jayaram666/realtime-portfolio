@@ -22,4 +22,5 @@ public interface UserMenuPermissionRepository extends JpaRepository<UserMenuPerm
             "AND m.active = true " +
             "ORDER BY m.displayOrder ASC")
     List<MenuPermissionRow> findMenuPermissionsByUserId(UUID userId);
+
 }

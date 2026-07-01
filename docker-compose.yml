@@ -97,6 +97,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/auth_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: jayaram@9959
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: realtime-kafka:29092
       SPRING_DATA_REDIS_HOST: realtime-redis
       SPRING_DATA_REDIS_PORT: 6379
       JWT_SECRET: my-super-secure-secret-key-with-32-chars-minimum
@@ -145,9 +146,10 @@ services:
     environment:
       SERVER_PORT: 8083
       SPRING_APPLICATION_NAME: portfolio-service
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/investor_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/portfolio_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: jayaram@9959
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_DATA_REDIS_HOST: realtime-redis
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_KAFKA_BOOTSTRAP_SERVERS: realtime-kafka:29092
@@ -202,10 +204,10 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-      SPRING_MAIL_HOST: smtp.gmail.com
-      SPRING_MAIL_PORT: 587
-      SPRING_MAIL_USERNAME: jayaramulu.talari269@gmail.com
-      SPRING_MAIL_PASSWORD: c+eihu?9DCh42&x
+#      SPRING_MAIL_HOST: smtp.gmail.com
+#      SPRING_MAIL_PORT: 587
+#      SPRING_MAIL_USERNAME: jayaramulu.talari269@gmail.com
+#      SPRING_MAIL_PASSWORD: c+eihu?9DCh42&x
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
     networks:
       - realtime-network

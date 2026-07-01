@@ -1,7 +1,6 @@
 package com.realtimeportfolio.gateway.filter;
 
 
-import com.realtimeportfolio.gateway.util.GatewaySecurityConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.realtimeportfolio.gateway.validator.JwtTokenValidator;
@@ -13,14 +12,13 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 
 import org.springframework.stereotype.Component;
-
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
@@ -31,7 +29,6 @@ import reactor.core.publisher.Mono;
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private final JwtTokenValidator jwtTokenValidator;
     private final PublicEndpointValidator publicEndpointValidator;
-    private final GatewaySecurityConfig gatewaySecurityConfig;
 
 
     @Override
@@ -41,7 +38,15 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     ) {
         ServerHttpRequest request = exchange.getRequest();
 
-        if (gatewaySecurityConfig.isPublic(request.getURI().getPath())) {
+        // CRITICAL FIX: If the browser is sending an OPTIONS preflight request, let it pass through!
+        if (exchange.getRequest().getMethod() == HttpMethod.OPTIONS) {
+            exchange.getResponse().setStatusCode(HttpStatus.OK);
+            return chain.filter(exchange);
+        }
+
+
+
+        if (publicEndpointValidator. isPublicEndpoint(request)){
             return chain.filter(exchange);
         }
 

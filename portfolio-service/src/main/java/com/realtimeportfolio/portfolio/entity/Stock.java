@@ -22,7 +22,7 @@ import java.util.UUID;
 public class Stock {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private UUID id;
     @Column(name = "company_name", nullable = false)
     private String companyName;

@@ -1,8 +1,9 @@
 package com.realtimeportfolio.portfolio.web;
 
 
-
+import com.realtimeportfolio.common.dto.ApiResponse;
 import com.realtimeportfolio.portfolio.scheduler.StockAlertGenerator;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.realtimeportfolio.portfolio.service.AlertThresholdService;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 
 import com.realtimeportfolio.common.dto.AlertThresholdRequest;
 import com.realtimeportfolio.common.dto.AlertThresholdResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,29 +28,29 @@ public class AlertThresholdController {
 
 
     @PostMapping
-    public AlertThresholdResponse createOrUpdateThreshold(
-            @Valid @RequestBody AlertThresholdRequest request,@RequestHeader("X-User-Id") UUID userId
+    public ApiResponse<AlertThresholdResponse> createOrUpdateThreshold(HttpServletRequest httpServletRequest,
+                                                                       @Valid @RequestBody AlertThresholdRequest request, @RequestHeader("X-User-Id") UUID userId
     ) {
-        /*
-         * For now hardcoded.
-         * Later get this from Spring Security JWT principal.
-         */
-
         log.info("Create/update alert threshold API called. userId={}, tickerSymbol={}", userId, request.getTickerSymbol());
-
         AlertThresholdResponse response = alertThresholdService.createOrUpdateThreshold(userId, request);
         log.info("Create/update alert threshold API completed. userId={}, tickerSymbol={}", userId, response.getTickerSymbol());
-        return response;
+        return ApiResponse.<AlertThresholdResponse>builder().data(response)
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .resource(httpServletRequest.getRequestURI())
+                .message("Setting/Updating Alert threshold is completed").build();
     }
 
     @GetMapping
-    public List<AlertThresholdResponse> getMyThresholds() {
-        UUID authenticatedUserId = UUID.randomUUID();
+    public ApiResponse<List<AlertThresholdResponse>> getMyThresholds(HttpServletRequest httpServletRequest,@RequestHeader("X-User-Id") UUID authenticatedUserId) {
         log.info("Get alert thresholds API called. userId={}", authenticatedUserId);
-
         List<AlertThresholdResponse> response = alertThresholdService.getMyThresholds(authenticatedUserId);
         log.info("Get alert thresholds API completed. userId={}, count={}", authenticatedUserId, response.size());
-        return response;
+        return ApiResponse.<List<AlertThresholdResponse>>builder().data(response)
+                .status(HttpStatus.OK.value())
+                .data(response)
+                .resource(httpServletRequest.getRequestURI())
+                .message("Setting/Updating Alert threshold is completed").build();
     }
 
     @GetMapping("/monitor")

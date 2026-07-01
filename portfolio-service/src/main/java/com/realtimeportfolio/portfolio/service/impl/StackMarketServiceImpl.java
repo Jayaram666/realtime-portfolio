@@ -28,7 +28,7 @@ public class StackMarketServiceImpl implements StackMarketService {
     @Override
     public List<StockTickerDto> getStockTickers() {
         log.debug("Calling market-data-service for default tickers. configuredTickers={}", defaultTickers);
-        List<StockTickerDto> response = stackMarketClient.getStockTickers();
+        List<StockTickerDto> response = stackMarketClient.getStockTickers().getData();
         log.debug("market-data-service ticker call completed. resultCount={}", response.size());
         return response;
     }
@@ -40,7 +40,8 @@ public class StackMarketServiceImpl implements StackMarketService {
         }
         String normalizedTicker = tickerSymbol.trim().toUpperCase();
         log.debug("Calling market-data-service for current price. tickerSymbol={}", normalizedTicker);
-        BigDecimal currentPrice = stackMarketClient.getCurrentPriceBySymbol(normalizedTicker);
+        BigDecimal currentPrice = stackMarketClient.getCurrentPriceBySymbol(normalizedTicker)
+                .getData().getPrice();
         log.debug("market-data-service price call completed. tickerSymbol={}, found={}", normalizedTicker, currentPrice != null);
         return Optional.ofNullable(currentPrice)
                 .map(price -> new StockTickerDto(normalizedTicker, price, null, null, "INR"));

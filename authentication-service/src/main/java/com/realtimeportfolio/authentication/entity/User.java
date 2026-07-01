@@ -4,7 +4,9 @@ package com.realtimeportfolio.authentication.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Entity
@@ -37,6 +39,14 @@ public class User {
     }
 
     public User(String name, String email, String passwordHash) {
+        this.name = name;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public User(UUID userId, String name, String email, String passwordHash) {
+        this.id = userId;
         this.name = name;
         this.email = email;
         this.passwordHash = passwordHash;

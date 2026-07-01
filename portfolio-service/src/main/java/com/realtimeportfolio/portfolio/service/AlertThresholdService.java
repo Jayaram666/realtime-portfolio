@@ -15,4 +15,5 @@ public interface AlertThresholdService {
     );
 
     List<AlertThresholdResponse> getMyThresholds(UUID userId);
+
 }

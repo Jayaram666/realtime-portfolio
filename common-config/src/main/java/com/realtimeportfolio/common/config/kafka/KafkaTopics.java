@@ -12,4 +12,6 @@ public final class KafkaTopics {
      * portfolio-service consumes these updates for realtime monitoring.
      */
     public static final String STOCK_PRICE_UPDATES = "stock-price-updates";
+
+    public static final String USER_CREATED = "user-created";
 }

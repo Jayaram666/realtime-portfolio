@@ -15,8 +15,8 @@ import java.util.List;
 public class StockPriceFetchScheduler {
     private final StockPriceEventProducer stockPriceEventProducer;
 
-    @Value("${stack-market-ticker-list}")
-    private List<String> tickerList;
+//    @Value("${stack-market-ticker-list}")
+//    private List<String> tickerList;
 
     public StockPriceFetchScheduler(StockPriceEventProducer stockPriceEventProducer) {
         this.stockPriceEventProducer = stockPriceEventProducer;

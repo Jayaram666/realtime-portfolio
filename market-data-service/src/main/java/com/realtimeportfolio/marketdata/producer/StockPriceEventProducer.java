@@ -1,9 +1,9 @@
 package com.realtimeportfolio.marketdata.producer;
 
 
-
+import com.realtimeportfolio.common.dto.StockTickerDto;
 import lombok.extern.slf4j.Slf4j;
-import com.realtimeportfolio.marketdata.client.RemoteStockClient;
+import com.realtimeportfolio.marketdata.quote.RemoteStockClient;
 
 import com.realtimeportfolio.common.config.kafka.KafkaTopics;
 import com.realtimeportfolio.common.dto.StockPriceUpdateEvent;
@@ -31,7 +31,7 @@ public class StockPriceEventProducer {
     public void fetchAndPublishPrice(String tickerSymbol) {
         Optional<BigDecimal> priceOptional =
                 remoteStockClient.getStock(tickerSymbol)
-                        .map(dto-> dto.getCurrentPrice());
+                        .map(StockTickerDto::getCurrentPrice);
 
         if (priceOptional.isEmpty()) {
             log.warn("Current price not available for tickerSymbol={}", tickerSymbol);

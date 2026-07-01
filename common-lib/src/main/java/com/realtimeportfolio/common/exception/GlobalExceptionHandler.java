@@ -1,18 +1,17 @@
 package com.realtimeportfolio.common.exception;
 
-
 import com.realtimeportfolio.common.dto.ApiResponse;
+import com.realtimeportfolio.common.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import com.realtimeportfolio.common.dto.ErrorResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -20,10 +19,11 @@ import java.util.List;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiResponse<ErrorResponse>> handleAuthenticationException(AuthenticationException ex, HttpServletRequest request) {
-        ErrorResponse errorResponse = ErrorResponse.of(
-                ex.getMessage()
-        );
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleAuthenticationException(
+            AuthenticationException ex,
+            HttpServletRequest request
+    ) {
+        ErrorResponse errorResponse = ErrorResponse.of(ex.getMessage());
 
         ApiResponse<ErrorResponse> apiResponse = ApiResponse.error(
                 HttpStatus.UNAUTHORIZED,
@@ -36,29 +36,30 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<ApiResponse<String>> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-
+    public ResponseEntity<ApiResponse<String>> handleDataIntegrityViolationException(
+            DataIntegrityViolationException ex,
+            HttpServletRequest request
+    ) {
         log.warn("Database constraint violation during save or update operation: {}", ex.getMessage());
 
         ApiResponse<String> apiResponse = ApiResponse.error(
                 HttpStatus.CONFLICT,
-                "filed value already exists",
-                null,
+                "Field value already exists",
+                request.getRequestURI(),
                 ex.getMessage()
         );
-        return ResponseEntity.ofNullable(apiResponse);
-    }
 
+        // FIX: Replaced .ofNullable() with explicit status to guarantee 409 Conflict wire status
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiResponse);
+    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<ErrorResponse>> handleResourceNotFoundException(
             ResourceNotFoundException ex,
             HttpServletRequest request
     ) {
-        ErrorResponse response = ErrorResponse.of(
-                ex.getMessage()
-        );
+        ErrorResponse response = ErrorResponse.of(ex.getMessage());
+
         ApiResponse<ErrorResponse> apiResponse = ApiResponse.error(
                 HttpStatus.NOT_FOUND,
                 "Resource not found",
@@ -70,14 +71,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<ApiResponse<ErrorResponse>> handleDuplicateResourceException(
             DuplicateResourceException ex,
             HttpServletRequest request
     ) {
-        ErrorResponse response = ErrorResponse.of(
-                ex.getMessage()
-        );
+        ErrorResponse response = ErrorResponse.of(ex.getMessage());
+
         ApiResponse<ErrorResponse> apiResponse = ApiResponse.error(
                 HttpStatus.CONFLICT,
                 "Duplicate resource",
@@ -106,11 +105,12 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 response
         );
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleMethodValidationException(
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
@@ -128,7 +128,14 @@ public class GlobalExceptionHandler {
                 validationErrors
         );
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        ApiResponse<ErrorResponse> apiResponse = ApiResponse.error(
+                HttpStatus.BAD_REQUEST,
+                "Validation failed",
+                request.getRequestURI(),
+                response
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -136,14 +143,41 @@ public class GlobalExceptionHandler {
             IllegalArgumentException ex,
             HttpServletRequest request
     ) {
-        ErrorResponse response = ErrorResponse.of(
-                ex.getMessage());
+        ErrorResponse response = ErrorResponse.of(ex.getMessage());
+
         ApiResponse<ErrorResponse> apiResponse = ApiResponse.error(
                 HttpStatus.BAD_REQUEST,
                 "Invalid argument",
                 request.getRequestURI(),
                 response
         );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleBusinessValidationException(
+            ValidationException validationException,
+            HttpServletRequest httpServletRequest
+    ) {
+        // FIX: Read structured error messages from the custom ValidationException payload
+        List<String> errors = validationException.getValidationMessages();
+
+        ErrorResponse errorResponse = ErrorResponse.validation(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.name(),
+                "Validation failed",
+                httpServletRequest.getRequestURI(),
+                errors
+        );
+
+        ApiResponse<ErrorResponse> apiResponse = ApiResponse.error(
+                HttpStatus.BAD_REQUEST,
+                "Validation failed",
+                httpServletRequest.getRequestURI(),
+                errorResponse
+        );
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
 
@@ -158,22 +192,10 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred",
                 request.getRequestURI(),
-                "Internal server error"
+                "Internal server error"+ex.getMessage()
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ApiResponse<ErrorResponse>> handleValidationException(ValidationException validationException, HttpServletRequest httpServletRequest) {
-        ErrorResponse errorResponse = ErrorResponse.of(validationException.getMessage());
-        ApiResponse<ErrorResponse> apiResponse = ApiResponse.error(
-                HttpStatus.BAD_REQUEST,
-                "Validation failed",
-                httpServletRequest.getRequestURI(),
-                errorResponse
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
 
     private String formatFieldError(FieldError fieldError) {

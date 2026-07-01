@@ -1,4 +1,4 @@
-package com.realtimeportfolio.marketdata.client;
+package com.realtimeportfolio.marketdata.quote;
 
 import com.realtimeportfolio.common.dto.StockTickerDto;
 import com.realtimeportfolio.common.dto.TickersDto;
@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -95,13 +94,9 @@ public class UpstoxClientImpl implements RemoteStockClient {
         return Optional.empty();
     }
 
-    private List<StockTickerDto> fallbackTopStocks(TickersDto symbols, Throwable ex) {
+    private List<StockTickerDto> fallbackTopStocks(Throwable ex) {
         log.error(
-                "Stock provider fallback triggered while fetching top stocks. symbols={}, reason={}",
-                symbols,
-                ex.getMessage(),
-                ex
-        );
+                "Stock provider fallback triggered while fetching top stocks");
 
         return List.of();
     }

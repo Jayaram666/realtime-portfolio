@@ -14,7 +14,7 @@ public class PublicEndpointValidator {
     private static final List<String> PUBLIC_ENDPOINTS = List.of(
             "/api/v1/users/register",
             "/api/v1/auth/login","/api/v1/auth/refresh-token",
-            "/actuator/health"
+            "/actuator/health","/api/v1/users/oauth-sync"
     );
 
     public boolean isPublicEndpoint(ServerHttpRequest request) {

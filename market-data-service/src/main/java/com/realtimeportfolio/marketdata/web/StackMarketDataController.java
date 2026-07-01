@@ -6,10 +6,9 @@ import com.realtimeportfolio.common.dto.StockPrice;
 import com.realtimeportfolio.marketdata.producer.StockPriceEventProducer;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import com.realtimeportfolio.marketdata.client.RemoteStockClient;
+import com.realtimeportfolio.marketdata.quote.RemoteStockClient;
 import lombok.RequiredArgsConstructor;
 import com.realtimeportfolio.common.dto.StockTickerDto;
-import com.realtimeportfolio.common.dto.TickersDto;
 import org.apache.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @RestController
-public class StockController {
+public class StackMarketDataController {
 
     private final RemoteStockClient stockClient;
 

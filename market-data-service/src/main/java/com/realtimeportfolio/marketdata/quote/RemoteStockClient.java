@@ -1,8 +1,7 @@
-package com.realtimeportfolio.marketdata.client;
+package com.realtimeportfolio.marketdata.quote;
 
 
 import com.realtimeportfolio.common.dto.StockTickerDto;
-import com.realtimeportfolio.common.dto.TickersDto;
 
 import java.math.BigDecimal;
 import java.util.List;

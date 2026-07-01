@@ -28,7 +28,7 @@ import java.util.UUID;
 public class PortfolioAlertThreshold {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private UUID id;
 
     /*

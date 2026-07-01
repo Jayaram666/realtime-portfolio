@@ -19,7 +19,7 @@ import java.util.UUID;
 public class UserPortfolio {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private UUID id;
     @Column(name = "user_id", nullable = false)
     private UUID userId;
@@ -47,12 +47,14 @@ public class UserPortfolio {
 
     private void calculateTotalInvestedAmount() {
         if (quantity != null && buyingPrice != null) {
+            System.out.println("Quantity :"+quantity+"  buying price:"+buyingPrice);
             totalInvestedAmount = buyingPrice.multiply(BigDecimal.valueOf(quantity));
         }
     }
-    @PostUpdate
+    @PreUpdate
     public void postUpdate() {
         updatedAt = LocalDateTime.now();
+        calculateTotalInvestedAmount();
     }
     public void updatePortfolio(Integer quantity, BigDecimal buyingPrice) {
         this.quantity = quantity;

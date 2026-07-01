@@ -1,10 +1,11 @@
 package com.realtimeportfolio.authentication.service.impl;
 
-
-
-import com.realtimeportfolio.authentication.dto.TokenRefreshRequest;
-import com.realtimeportfolio.authentication.dto.TokenRefreshResponse;
+import com.realtimeportfolio.authentication.dto.OAuthSyncRequest;
+import com.realtimeportfolio.authentication.dto.UserSyncResponse;
+import com.realtimeportfolio.authentication.producer.UserCreatedProducer;
+import com.realtimeportfolio.common.dto.UserCreatedEvent;
 import com.realtimeportfolio.common.exception.ValidationException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.realtimeportfolio.authentication.entity.User;
 import com.realtimeportfolio.authentication.repo.UserRepository;
@@ -12,28 +13,22 @@ import com.realtimeportfolio.authentication.service.UserRegistrationService;
 import com.realtimeportfolio.authentication.validator.UserRegistrationValidator;
 import com.realtimeportfolio.common.dto.UserRegistrationRequest;
 import com.realtimeportfolio.common.dto.UserRegistrationResponse;
-import com.realtimeportfolio.common.exception.UserRegistrationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserRegistrationServiceImpl implements UserRegistrationService {
     private final UserRepository userRepository;
     private final UserRegistrationValidator validator;
     private final PasswordEncoder passwordEncoder;
-
-    public UserRegistrationServiceImpl(UserRepository userRepository,
-                                       UserRegistrationValidator validator,
-                                       PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.validator = validator;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private final UserCreatedProducer userCreatedProducer;
 
     @Transactional
     @Override
@@ -62,7 +57,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         );
 
         User savedUser = userRepository.save(user);
-
+        userCreatedProducer.produce(new UserCreatedEvent(savedUser.getId(), savedUser.getName(), savedUser.getEmail()));
         log.info("User registration completed successfully. userId={}, email={}",
                 savedUser.getId(), savedUser.getEmail());
 
@@ -74,4 +69,25 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         );
     }
 
+    @Override
+    public UserSyncResponse processOAuthUser(OAuthSyncRequest oAuthSyncRequest) {
+
+        if (userRepository.existsByEmail(oAuthSyncRequest.getEmail())) {
+            return new UserSyncResponse();
+        }
+        String encryptedPassword = passwordEncoder.encode(UUID.randomUUID().toString());
+        User user = new User(
+                oAuthSyncRequest.getUserId(),
+                oAuthSyncRequest.getName(),
+                oAuthSyncRequest.getEmail(),
+                encryptedPassword
+        );
+
+        User savedUser = userRepository.save(user);
+        userCreatedProducer.produce(new UserCreatedEvent(savedUser.getId(), savedUser.getName(), savedUser.getEmail()));
+        log.info("User registration completed successfully in oauth2 . userId={}, email={}",
+                savedUser.getId(), savedUser.getEmail());
+
+        return new UserSyncResponse(savedUser.getId(), savedUser.getEmail(), savedUser.getName());
+    }
 }
