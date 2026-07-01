@@ -1,6 +1,27 @@
 version: "3.8"
 
 services:
+  # Added Postgres container service
+  postgres:
+    image: postgres:16-alpine
+    container_name: realtime-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: jayaram@9959
+      # Creates a default database on startup.
+      # Note: Postgres only auto-creates one database via environment variables.
+      # You can manually create auth_db, investor_db, and portfolio_db via pgAdmin or an init script.
+      POSTGRES_DB: auth_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - realtime-network
+
   redis:
     image: redis:7-alpine
     container_name: realtime-redis
@@ -85,6 +106,8 @@ services:
       dockerfile: authentication-service/Dockerfile
     container_name: authentication-service
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
       service-discovery:
@@ -113,6 +136,8 @@ services:
       dockerfile: stack-service/Dockerfile
     container_name: stack-service
     depends_on:
+      postgres:
+        condition: service_healthy
       service-discovery:
         condition: service_started
     ports:
@@ -133,6 +158,8 @@ services:
       dockerfile: portfolio-service/Dockerfile
     container_name: portfolio-service
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
       kafka:
@@ -204,11 +231,6 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-#      SPRING_MAIL_HOST: smtp.gmail.com
-#      SPRING_MAIL_PORT: 587
-#      SPRING_MAIL_USERNAME: jayaramulu.talari269@gmail.com
-#      SPRING_MAIL_PASSWORD: c+eihu?9DCh42&x
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
     networks:
       - realtime-network
 
