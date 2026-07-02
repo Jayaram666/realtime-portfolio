@@ -4,6 +4,17 @@ server:
 spring:
   application:
     name: ${SPRING_APPLICATION_NAME:stack-service}
+  flyway:
+    # Enables Flyway database migrations on application startup
+    enabled: true
+    # Tells Flyway to look in the standard classpath folder for SQL scripts
+    locations: classpath:db/migration
+    # Creates the history metadata table if the database already contains a schema
+    baseline-on-migrate: true
+    # Sets the version identifier for the initial baseline schema creation
+    baseline-version: 1
+    # Stops application boot instantly if migration syntax or validation checks fail
+    fail-on-missing-locations: true
 
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/stock_db}

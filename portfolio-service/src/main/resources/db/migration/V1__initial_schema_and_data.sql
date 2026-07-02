@@ -11,6 +11,7 @@ SET row_security = off;
 -- =========================================================================
 -- 1. TABLE CREATION (SCHEMA)
 -- =========================================================================
+create database portfolio_db;
 
 CREATE TABLE public.menu_permission (
     id uuid NOT NULL,
