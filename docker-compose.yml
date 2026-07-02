@@ -11,6 +11,14 @@ services:
       POSTGRES_PASSWORD: jayaram@9959
       POSTGRES_DB: auth_db
     # This command bypasses the need for an external script file entirely
+    entrypoint: >
+      bash -c "
+      /usr/local/bin/docker-entrypoint.sh postgres &
+      until pg_isready -q; do sleep 1; done;
+      psql -U postgres -d auth_db -c 'CREATE DATABASE investor_db;' || true;
+      psql -U postgres -d auth_db -c 'CREATE DATABASE portfolio_db;' || true;
+      wait
+      "
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
