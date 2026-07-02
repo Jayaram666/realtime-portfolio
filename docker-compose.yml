@@ -1,7 +1,6 @@
 version: "3.8"
 
 services:
-  # Added Postgres container service
   postgres:
     image: postgres:16-alpine
     container_name: realtime-postgres
@@ -10,10 +9,21 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: jayaram@9959
-      # Creates a default database on startup.
-      # Note: Postgres only auto-creates one database via environment variables.
-      # You can manually create auth_db, investor_db, and portfolio_db via pgAdmin or an init script.
       POSTGRES_DB: auth_db
+    # This command bypasses the need for an external script file entirely
+    command: >
+      sh -c "
+      docker-entrypoint.sh postgres &
+      until psql -U postgres -d auth_db -c 'SELECT 1;' > /dev/null 2>&1; do
+        echo 'Waiting for database...'
+        sleep 1
+      done
+      psql -U postgres -d auth_db -c 'CREATE DATABASE investor_db;' || true
+      psql -U postgres -d auth_db -c 'CREATE DATABASE portfolio_db;' || true
+      wait
+      "
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -27,6 +37,8 @@ services:
     container_name: realtime-redis
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -56,7 +68,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: realtime-zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://realtime-kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://realtime-kafka:29092,EXTERNAL://realtime-kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092
@@ -77,6 +89,8 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 10s
@@ -86,9 +100,7 @@ services:
       - realtime-network
 
   service-discovery:
-    build:
-      context: .
-      dockerfile: service-discovery/Dockerfile
+    image: ${REGISTRY_USER}/service-discovery:latest
     container_name: service-discovery
     ports:
       - "8761:8761"
@@ -101,9 +113,7 @@ services:
       - realtime-network
 
   authentication-service:
-    build:
-      context: .
-      dockerfile: authentication-service/Dockerfile
+    image: ${REGISTRY_USER}/authentication-service:latest
     container_name: authentication-service
     depends_on:
       postgres:
@@ -117,13 +127,13 @@ services:
     environment:
       SERVER_PORT: 8081
       SPRING_APPLICATION_NAME: authentication-service
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/auth_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/auth_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: jayaram@9959
       SPRING_KAFKA_BOOTSTRAP_SERVERS: realtime-kafka:29092
       SPRING_DATA_REDIS_HOST: realtime-redis
       SPRING_DATA_REDIS_PORT: 6379
-      JWT_SECRET: my-super-secure-secret-key-with-32-chars-minimum
+      JWT_SECRET: ${JWT_SECRET:-my-super-secure-secret-key-with-32-chars-minimum}
       JWT_EXPIRATION_MS: 86400000
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
       SPRING_FLYWAY_BASELINE_ON_MIGRATE: true
@@ -131,9 +141,7 @@ services:
       - realtime-network
 
   stack-service:
-    build:
-      context: .
-      dockerfile: stack-service/Dockerfile
+    image: ${REGISTRY_USER}/stack-service:latest
     container_name: stack-service
     depends_on:
       postgres:
@@ -145,7 +153,7 @@ services:
     environment:
       SERVER_PORT: 8082
       SPRING_APPLICATION_NAME: stack-service
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/investor_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/investor_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: jayaram@9959
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
@@ -153,9 +161,7 @@ services:
       - realtime-network
 
   portfolio-service:
-    build:
-      context: .
-      dockerfile: portfolio-service/Dockerfile
+    image: ${REGISTRY_USER}/portfolio-service:latest
     container_name: portfolio-service
     depends_on:
       postgres:
@@ -173,7 +179,7 @@ services:
     environment:
       SERVER_PORT: 8083
       SPRING_APPLICATION_NAME: portfolio-service
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/portfolio_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/portfolio_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: jayaram@9959
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -189,9 +195,7 @@ services:
       - realtime-network
 
   market-data-service:
-    build:
-      context: .
-      dockerfile: market-data-service/Dockerfile
+    image: ${REGISTRY_USER}/market-data-service:latest
     container_name: market-data-service
     depends_on:
       redis:
@@ -213,9 +217,7 @@ services:
       - realtime-network
 
   notification-service:
-    build:
-      context: .
-      dockerfile: notification-service/Dockerfile
+    image: ${REGISTRY_USER}/notification-service:latest
     container_name: notification-service
     depends_on:
       rabbitmq:
@@ -235,9 +237,7 @@ services:
       - realtime-network
 
   api-gateway:
-    build:
-      context: .
-      dockerfile: api-gateway/Dockerfile
+    image: ${REGISTRY_USER}/api-gateway:latest
     container_name: api-gateway
     depends_on:
       - service-discovery
@@ -251,7 +251,7 @@ services:
     environment:
       SERVER_PORT: 8080
       SPRING_APPLICATION_NAME: api-gateway
-      JWT_SECRET: my-super-secure-secret-key-with-32-chars-minimum
+      JWT_SECRET: ${JWT_SECRET:-my-super-secure-secret-key-with-32-chars-minimum}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka/
     networks:
       - realtime-network
@@ -259,3 +259,11 @@ services:
 networks:
   realtime-network:
     driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
