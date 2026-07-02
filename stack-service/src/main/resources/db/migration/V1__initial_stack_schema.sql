@@ -8,7 +8,6 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
-create database investor_db;
 -- =========================================================================
 -- TABLE CREATION (STACK SERVICE SCHEMA)
 -- =========================================================================
